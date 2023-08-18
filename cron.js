@@ -4,6 +4,7 @@ const optimismSDK = require("@eth-optimism/sdk")
 const { quantile } = require('simple-statistics')
 const createContract = require('./src/contracts')
 const fetchPrice = require('./src/price')
+const limit = require('./src/limiter')
 require('dotenv').config()
 
 const { argv } = yargs
@@ -63,9 +64,7 @@ const main = async () => {
 
   const vaultContract = createContract(wallet, 'vault')
 
-  // vaultContract
-
-  for (const i of [...Array(68)].map((_,i) => i)) {
+  const taskRunner = async (i) => {
     console.log(i)
     const res1 = await vaultContract.Pools(i)
     const { gauge, rewardToken } = res1
@@ -75,17 +74,21 @@ const main = async () => {
     const rewardTokenPrice = await fetchPrice(rewardToken)
     
     const bountyUsd = .01 * rewardTokenPrice * rewardTokenAmount
+
+    if (bountyUsd < 0.05) {
+      return 0
+    }
+    
   
     const txReq = await vaultContract.populateTransaction.claimBounty(i, TO_ADDRESS)
     const tx = await wallet.populateTransaction(txReq)
     const [pWeiValue, totalCost] = await calculateGasFeeUsd(wallet, tx)
-  
-    if (!(bountyUsd - totalCost >= minReward)) {
-      // console.log(88)
-      continue
-    }
 
     console.log(i, bountyUsd, totalCost)
+  
+    if (!(bountyUsd - totalCost >= minReward)) {
+      return bountyUsd - totalCost
+    }
 
     if (argv.exec) {
       tx.maxPriorityFeePerGas = pWeiValue
@@ -95,7 +98,15 @@ const main = async () => {
       console.log(receipt)
     }
 
+    return bountyUsd - totalCost
   }
+
+  const tasks = [...Array(68)].map((_,i) => taskRunner.bind(this, i))
+
+  const r = await limit(tasks, 6)
+
+  console.log(r)
+
 }
 
 
