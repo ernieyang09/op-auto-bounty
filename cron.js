@@ -89,8 +89,15 @@ const main = async () => {
     const [pWeiValue, totalCost] = await calculateGasFeeUsd(wallet, tx)
 
     console.log(i, bountyUsd, totalCost)
-  
-    if (!(bountyUsd - totalCost >= minReward)) {
+
+    let expectedReward = minReward
+
+    if (argv.random) {
+      const randomValue = (Math.random() * 0.06) - 0.03
+      expectedReward += randomValue
+    }
+
+    if (!(bountyUsd - totalCost >= expectedReward)) {
       return bountyUsd - totalCost
     }
 
