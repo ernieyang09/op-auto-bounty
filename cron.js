@@ -14,6 +14,10 @@ const { ALCHEMY_API_KEY, WALLET_PRIVATE_KEY, VAULT_CONTRACT_ADDR, TO_ADDRESS, MI
 const minReward = parseFloat(MIN_REWARD_USD)
 const alchemyEndpoint = `https://opt-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`
 
+const trun = (number) => {
+  const len = Math.min(number.toString().length - 2, 1)
+  return ethers.BigNumber.from(number).div(10 ** len).mul(10 ** len)
+}
 
 const samplePWei = (reward) => {
   const r = reward.map((hexValues) => ethers.BigNumber.from(hexValues[0]).toNumber())
@@ -21,7 +25,7 @@ const samplePWei = (reward) => {
   const percentile75 = quantile(r, 0.75)
   const filtered = r.filter((rr) => rr <= percentile75)
 
-  return ethers.BigNumber.from(Math.ceil(filtered.reduce((a, b)=> { return a + b }, 0) / (filtered.length - 1)))
+  return Math.ceil(filtered.reduce((a, b)=> { return a + b }, 0) / (filtered.length - 1))
 }
 
 const calculateGasFeeUsd = async (wallet, tx) => {
@@ -34,7 +38,7 @@ const calculateGasFeeUsd = async (wallet, tx) => {
       'latest',
       [20,45],
     ])
-    const pWeiValue = samplePWei(hist.reward)
+    let pWeiValue = trun(samplePWei(hist.reward))
     const bWeiValue = ethers.BigNumber.from(hist.baseFeePerGas[hist.baseFeePerGas.length-1])
     const gasPrice = bWeiValue.add(pWeiValue)
 
@@ -90,7 +94,10 @@ const main = async () => {
       return bountyUsd - totalCost
     }
 
+    console.log(`found ${i}`)
+
     if (argv.exec) {
+      console.log(`exec ${i}`)
       tx.maxPriorityFeePerGas = pWeiValue
 
       const txResponse = await wallet.sendTransaction(tx);
