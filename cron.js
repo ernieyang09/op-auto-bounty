@@ -1,4 +1,4 @@
-const yargs = require("yargs");
+const yargs = require("yargs")
 const ethers = require("ethers")
 const optimismSDK = require("@eth-optimism/sdk")
 const { quantile } = require('simple-statistics')
@@ -15,7 +15,7 @@ const minReward = parseFloat(MIN_REWARD_USD)
 const alchemyEndpoint = `https://opt-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`
 
 const trun = (number) => {
-  const len = Math.min(number.toString().length - 2, 1)
+  const len = Math.max(number.toString().length - 2, 0)
   return ethers.BigNumber.from(number).div(10 ** len).mul(10 ** len)
 }
 
@@ -93,7 +93,8 @@ const main = async () => {
     let expectedReward = minReward
 
     if (argv.random) {
-      const randomValue = (Math.random() * 0.06) - 0.03
+      // -0.02 to 0.07
+      const randomValue = (Math.random() * 0.09) - 0.02
       expectedReward += randomValue
     }
 
