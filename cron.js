@@ -36,7 +36,7 @@ const calculateGasFeeUsd = async (wallet, tx) => {
     const hist = await wallet.provider.send('eth_feeHistory', [
       historicalBlocks,
       'latest',
-      [20,45],
+      [25,45],
     ])
     let pWeiValue = trun(samplePWei(hist.reward))
     const bWeiValue = ethers.BigNumber.from(hist.baseFeePerGas[hist.baseFeePerGas.length-1])
@@ -69,7 +69,6 @@ const main = async () => {
   const vaultContract = createContract(wallet, 'vault')
 
   const taskRunner = async (i) => {
-    console.log(i)
     const res1 = await vaultContract.Pools(i)
     const { gauge, rewardToken } = res1
   
@@ -82,13 +81,12 @@ const main = async () => {
     if (bountyUsd < 0.05) {
       return 0
     }
+
     
   
     const txReq = await vaultContract.populateTransaction.claimBounty(i, TO_ADDRESS)
     const tx = await wallet.populateTransaction(txReq)
     const [pWeiValue, totalCost] = await calculateGasFeeUsd(wallet, tx)
-
-    console.log(i, bountyUsd, totalCost)
 
     let expectedReward = minReward
 
@@ -97,6 +95,10 @@ const main = async () => {
       const randomValue = (Math.random() * 0.09) - 0.02
       expectedReward += randomValue
     }
+
+    console.log(i)
+    console.log(bountyUsd, totalCost)
+    console.log(bountyUsd - totalCost, expectedReward)
 
     if (!(bountyUsd - totalCost >= expectedReward)) {
       return bountyUsd - totalCost
