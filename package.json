@@ -12,6 +12,7 @@
     "@eth-optimism/sdk": "^3.1.1",
     "dotenv": "^16.3.1",
     "ethers": "5",
+    "log4js": "^6.9.1",
     "simple-statistics": "^7.8.3",
     "yargs": "^17.7.2"
   }

@@ -1,15 +1,16 @@
+const Logger = require('log4js')
+const logger = Logger.getLogger()
+
 const limit = async (tasks, concurrency) => {
-
   const result = new Array(tasks)
-
   const runTask = async (taskIterator) => {
-
     for (const [idx, task] of taskIterator) {
       try {
+        logger.debug(idx)
         const res = await task()
         result[idx] = res
-      } catch(e) {
-        console.log(e)
+      } catch (e) {
+        console.error(`${idx} failed`)
       }
     }
   }
@@ -20,9 +21,7 @@ const limit = async (tasks, concurrency) => {
 
   await Promise.allSettled(workers)
 
-
   return result
-
 }
 
 module.exports = limit

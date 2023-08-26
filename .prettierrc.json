@@ -1,0 +1,11 @@
+{
+    "indent": 2,
+    "printWidth": 100,
+    "semi": false,
+    "singleQuote": true,
+    "quoteProps": "as-needed",
+    "trailingComma": "all",
+    "bracketSpacing": true,
+    "bracketSameLine": true,
+    "htmlWhitespaceSensitivity": "ignore"
+}
