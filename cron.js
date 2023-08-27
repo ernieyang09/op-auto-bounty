@@ -18,11 +18,9 @@ if (argv.debug) {
   logger.level = Logger.levels.DEBUG
 }
 
-const { ALCHEMY_API_KEY, WALLET_PRIVATE_KEY, VAULT_CONTRACT_ADDR, TO_ADDRESS, MIN_REWARD_USD } =
-  process.env
+const { RPC, WALLET_PRIVATE_KEY, VAULT_CONTRACT_ADDR, TO_ADDRESS, MIN_REWARD_USD } = process.env
 
 const minReward = parseFloat(MIN_REWARD_USD)
-const alchemyEndpoint = 'https://optimism.drpc.org'
 
 const trun = (number) => {
   const len = Math.max(number.toString().length - 2, 0)
@@ -82,9 +80,7 @@ const calculateGasFeeUsd = async (wallet, tx) => {
 }
 
 const main = async () => {
-  const l2RpcProvider = optimismSDK.asL2Provider(
-    new ethers.providers.JsonRpcProvider(alchemyEndpoint),
-  )
+  const l2RpcProvider = optimismSDK.asL2Provider(new ethers.providers.JsonRpcProvider(RPC))
   const wallet = new ethers.Wallet(WALLET_PRIVATE_KEY).connect(l2RpcProvider)
 
   const vaultContract = createContract(wallet, 'vault')
