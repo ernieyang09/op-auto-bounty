@@ -56,9 +56,9 @@ const calculateGasFeeUsd = async (wallet, tx) => {
     const bWeiValue = ethers.BigNumber.from(hist.baseFeePerGas[hist.baseFeePerGas.length - 1])
     const gasPrice = bWeiValue.add(pWeiValue)
 
-    console.log('l2gas gwei', ethers.utils.formatUnits(gasPrice, 'gwei'))
+    // console.log('l2gas gwei', ethers.utils.formatUnits(gasPrice, 'gwei'))
 
-    return [pWeiValue, ethers.BigNumber.from(20).div(10).mul(l2gas).mul(gasPrice)]
+    return [pWeiValue, ethers.BigNumber.from(14).div(10).mul(l2gas).mul(gasPrice)]
   }
 
   const calL1GasCost = async () =>
@@ -80,6 +80,7 @@ const calculateGasFeeUsd = async (wallet, tx) => {
 }
 
 const main = async () => {
+  console.log(`Start: ${new Date().toLocaleString()}`)
   const l2RpcProvider = optimismSDK.asL2Provider(new ethers.providers.JsonRpcProvider(RPC))
   const wallet = new ethers.Wallet(WALLET_PRIVATE_KEY).connect(l2RpcProvider)
 
@@ -98,7 +99,7 @@ const main = async () => {
 
     const bountyUsd = 0.01 * rewardTokenPrice * rewardTokenAmount
 
-    if (bountyUsd < 0.1) {
+    if (bountyUsd < 0.05) {
       return
     }
 
@@ -114,23 +115,21 @@ const main = async () => {
       expectedReward += randomValue
     }
 
-    console.log(i, bountyUsd, totalCost)
-    console.log(bountyUsd - totalCost, expectedReward)
+    console.log(`${i} bounty: ${bountyUsd}, cost: ${totalCost}`)
 
     if (!(bountyUsd - totalCost >= expectedReward)) {
       return
     }
-
-    console.log(`found ${i}`)
 
     tx.maxPriorityFeePerGas = pWeiValue
 
     return tx
   }
 
-  const tasks = [...Array(69)].map((_, i) => taskRunner.bind(this, i))
+  // const tasks = [...Array(71)].map((_, i) => taskRunner.bind(this, i))
+  const tasks = [...Array(71)].map((_, i) => taskRunner.bind(this, i))
 
-  const r = (await limit(tasks, 8)).filter((r) => r)
+  const r = (await limit(tasks, 10)).filter((r) => r)
 
   if (argv.exec) {
     for (const tx of r) {
@@ -151,6 +150,7 @@ const main = async () => {
   if (argv.convert) {
     convert(wallet)
   }
+  console.log(`End: ${new Date().toLocaleString()}`)
 }
 
 try {
