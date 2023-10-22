@@ -32,8 +32,8 @@ const trun = (number) => {
 const samplePWei = (reward) => {
   const r = reward.map((hexValues) => ethers.BigNumber.from(hexValues[0]).toNumber())
 
-  const percentile75 = quantile(r, 0.75)
-  const filtered = r.filter((rr) => rr <= percentile75)
+  const percentile60 = quantile(r, 0.6)
+  const filtered = r.filter((rr) => rr <= percentile60)
 
   return Math.ceil(
     filtered.reduce((a, b) => {
@@ -50,7 +50,7 @@ const calculateGasFeeUsd = async (wallet, tx) => {
     const hist = await wallet.provider.send('eth_feeHistory', [
       historicalBlocks,
       'latest',
-      [15, 90],
+      [25, 65],
     ])
     let pWeiValue = trun(samplePWei(hist.reward))
     const bWeiValue = ethers.BigNumber.from(hist.baseFeePerGas[hist.baseFeePerGas.length - 1])
