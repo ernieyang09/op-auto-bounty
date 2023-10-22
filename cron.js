@@ -133,7 +133,7 @@ const main = async () => {
 
   if (argv.exec) {
     for (const tx of r) {
-      console.log(`exec tx`)
+      console.log(`${new Date().toLocaleString()} exec tx`)
       try {
         const nonce = await wallet.getTransactionCount()
         tx.nonce = nonce
