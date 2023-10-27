@@ -10,7 +10,7 @@ const limit = async (tasks, concurrency) => {
         const res = await task()
         result[idx] = res
       } catch (e) {
-        console.error(`${idx} failed`)
+        // console.error(`${idx} failed`)
       }
     }
   }

@@ -58,7 +58,7 @@ const calculateGasFeeUsd = async (wallet, tx) => {
 
     // console.log('l2gas gwei', ethers.utils.formatUnits(gasPrice, 'gwei'))
 
-    return [pWeiValue, ethers.BigNumber.from(14).div(10).mul(l2gas).mul(gasPrice)]
+    return [pWeiValue, ethers.BigNumber.from(16).mul(l2gas).mul(gasPrice).div(10)]
   }
 
   const calL1GasCost = async () =>
@@ -99,7 +99,7 @@ const main = async () => {
 
     const bountyUsd = 0.01 * rewardTokenPrice * rewardTokenAmount
 
-    if (bountyUsd < 0.05) {
+    if (bountyUsd < 0.11) {
       return
     }
 
@@ -117,9 +117,15 @@ const main = async () => {
 
     console.log(`${i} bounty: ${bountyUsd}, cost: ${totalCost}`)
 
+    if (totalCost > 0.095 && (bountyUsd - totalCost) < expectedReward * 1.2) {
+      return
+    }
+
     if (!(bountyUsd - totalCost >= expectedReward)) {
       return
     }
+
+    console.log(`found ${i}`)
 
     tx.maxPriorityFeePerGas = pWeiValue
 
@@ -132,13 +138,14 @@ const main = async () => {
   const r = (await limit(tasks, 10)).filter((r) => r)
 
   if (argv.exec) {
+    let nonce = await wallet.getTransactionCount()
     for (const tx of r) {
       console.log(`${new Date().toLocaleString()} exec tx`)
       try {
-        const nonce = await wallet.getTransactionCount()
         tx.nonce = nonce
         const txResponse = await wallet.sendTransaction(tx)
         await txResponse.wait()
+	nonce += 1
       } catch (e) {
         console.log(e)
         console.log('exec failed')
