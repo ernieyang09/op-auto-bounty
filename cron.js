@@ -32,7 +32,7 @@ const trun = (number) => {
 const samplePWei = (reward) => {
   const r = reward.map((hexValues) => ethers.BigNumber.from(hexValues[0]).toNumber())
 
-  const percentile60 = quantile(r, 0.6)
+  const percentile60 = quantile(r, 0.5)
   const filtered = r.filter((rr) => rr <= percentile60)
 
   return Math.ceil(
@@ -46,19 +46,19 @@ const samplePWei = (reward) => {
 const calculateGasFeeUsd = async (wallet, tx) => {
   const calL2GasCost = async () => {
     const l2gas = ethers.BigNumber.from(await wallet.provider.estimateGas(tx))
-    const historicalBlocks = 20
+    const historicalBlocks = 10
     const hist = await wallet.provider.send('eth_feeHistory', [
       historicalBlocks,
       'latest',
-      [25, 65],
+      [10, 50],
     ])
     let pWeiValue = trun(samplePWei(hist.reward))
     const bWeiValue = ethers.BigNumber.from(hist.baseFeePerGas[hist.baseFeePerGas.length - 1])
     const gasPrice = bWeiValue.add(pWeiValue)
 
-    // console.log('l2gas gwei', ethers.utils.formatUnits(gasPrice, 'gwei'))
+    console.log('l2gas gwei', ethers.utils.formatUnits(gasPrice, 'gwei'))
 
-    return [pWeiValue, ethers.BigNumber.from(16).mul(l2gas).mul(gasPrice).div(10)]
+    return [pWeiValue, ethers.BigNumber.from(14).mul(l2gas).mul(gasPrice).div(10)]
   }
 
   const calL1GasCost = async () =>
@@ -116,6 +116,10 @@ const main = async () => {
     }
 
     console.log(`${i} bounty: ${bountyUsd}, cost: ${totalCost}`)
+
+    if (totalCost > 0.15) {
+      return
+    }
 
     if (totalCost > 0.095 && (bountyUsd - totalCost) < expectedReward * 1.2) {
       return
