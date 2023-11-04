@@ -1,2 +1,2 @@
 #!/bin/bash
-node cron.js --exec
+node cron.js --exec --convert
