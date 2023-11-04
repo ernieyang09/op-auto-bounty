@@ -24,6 +24,20 @@ const samplePWei = (reward) => {
   )
 }
 
+const calL2GasCost = async (wallet, tx) => {
+  const historicalBlocks = 8
+  const hist = await wallet.provider.send('eth_feeHistory', [
+    historicalBlocks,
+    'latest',
+    [10, 30, 50, 75],
+  ])
+  let pWeiValue = trun(samplePWei(hist.reward))
+  const bWeiValue = ethers.BigNumber.from(hist.baseFeePerGas[hist.baseFeePerGas.length - 1])
+  const gasPrice = bWeiValue.add(pWeiValue)
+
+  return [pWeiValue, gasPrice]
+}
+
 const convert = async (wallet) => {
   const rewardTokenAddr = '0x9560e827aF36c94D2Ac33a39bCE1Fe78631088Db'
   const rewardTokenPrice = await fetchPrice(rewardTokenAddr)
@@ -74,25 +88,18 @@ const convert = async (wallet) => {
   )
   const tx = await wallet.populateTransaction(txReq)
 
-  const fee = ethers.utils.formatEther(await wallet.provider.estimateTotalGasCost(tx)) * ethPrice
+  const [pWeiValue, gasPrice] = await calL2GasCost(wallet, tx)
 
-  console.log(`fee: ${fee}`)
-
-  if (fee > 0.1) {
-    console.log('skip')
+  if (gasPrice > 0.013) {
+    console.log('l2gas gwei', ethers.utils.formatUnits(gasPrice, 'gwei'))
     return
   }
-
-  // manually update l2gas price
-  const historicalBlocks = 20
-  const hist = await wallet.provider.send('eth_feeHistory', [historicalBlocks, 'latest', [25, 65]])
-  const pWeiValue = trun(samplePWei(hist.reward))
 
   tx.maxPriorityFeePerGas = pWeiValue
 
   const txResponse = await wallet.sendTransaction(tx)
   await txResponse.wait()
-  console.log('done')
+  console.log('convert done')
 }
 
 module.exports = convert

@@ -18,7 +18,9 @@ if (argv.debug) {
   logger.level = Logger.levels.DEBUG
 }
 
-const { RPC, WALLET_PRIVATE_KEY, VAULT_CONTRACT_ADDR, TO_ADDRESS, MIN_REWARD_USD } = process.env
+const { RPCS, WALLET_PRIVATE_KEY, VAULT_CONTRACT_ADDR, TO_ADDRESS, MIN_REWARD_USD } = process.env
+
+const RPC = RPCS.split(',')[Math.floor(Math.random() * RPCS.split(',').length)]
 
 const minReward = parseFloat(MIN_REWARD_USD)
 
@@ -121,7 +123,7 @@ const main = async () => {
       return
     }
 
-    if (totalCost > 0.095 && (bountyUsd - totalCost) < expectedReward * 1.2) {
+    if (totalCost > 0.095 && bountyUsd - totalCost < expectedReward * 1.2) {
       return
     }
 
@@ -136,9 +138,7 @@ const main = async () => {
     return tx
   }
 
-  // const tasks = [...Array(71)].map((_, i) => taskRunner.bind(this, i))
   const tasks = [...Array(71)].map((_, i) => taskRunner.bind(this, i))
-
   const r = (await limit(tasks, 10)).filter((r) => r)
 
   if (argv.exec) {
@@ -149,7 +149,7 @@ const main = async () => {
         tx.nonce = nonce
         const txResponse = await wallet.sendTransaction(tx)
         await txResponse.wait()
-	nonce += 1
+        nonce += 1
       } catch (e) {
         console.log(e)
         console.log('exec failed')
@@ -159,7 +159,7 @@ const main = async () => {
 
   // not commit
   if (argv.convert) {
-    convert(wallet)
+    await convert(wallet)
   }
   console.log(`End: ${new Date().toLocaleString()}`)
 }
