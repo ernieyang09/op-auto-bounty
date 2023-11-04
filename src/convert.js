@@ -1,5 +1,6 @@
 const ethers = require('ethers')
 const createContract = require('./contracts')
+const { quantile } = require('simple-statistics')
 const fetchPrice = require('./price')
 
 const trun = (number) => {
@@ -77,7 +78,7 @@ const convert = async (wallet) => {
 
   console.log(`fee: ${fee}`)
 
-  if (fee > 0.15) {
+  if (fee > 0.1) {
     console.log('skip')
     return
   }
