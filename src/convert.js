@@ -72,6 +72,8 @@ const convert = async (wallet) => {
     return
   }
 
+  console.log('try convert')
+
   const txReq = await veloContract.populateTransaction.swapExactTokensForETH(
     balance,
     amount[1],
@@ -91,7 +93,7 @@ const convert = async (wallet) => {
   const [pWeiValue, gasPrice] = await calL2GasCost(wallet, tx)
 
   if (gasPrice.gt(ethers.utils.parseUnits('0.009', 'gwei'))) {
-    console.log('l2gas gwei', ethers.utils.formatUnits(gasPrice, 'gwei'))
+    console.log('gas gwei too high', ethers.utils.formatUnits(gasPrice, 'gwei'))
     return
   }
 
