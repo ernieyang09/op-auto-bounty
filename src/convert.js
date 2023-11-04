@@ -90,7 +90,7 @@ const convert = async (wallet) => {
 
   const [pWeiValue, gasPrice] = await calL2GasCost(wallet, tx)
 
-  if (gasPrice > 0.013) {
+  if (gasPrice.gt(ethers.utils.parseUnits('0.009', 'gwei'))) {
     console.log('l2gas gwei', ethers.utils.formatUnits(gasPrice, 'gwei'))
     return
   }
