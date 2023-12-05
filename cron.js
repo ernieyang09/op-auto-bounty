@@ -138,7 +138,7 @@ const main = async () => {
     return tx
   }
 
-  const tasks = [...Array(71)].map((_, i) => taskRunner.bind(this, i))
+  const tasks = [...Array(72)].map((_, i) => taskRunner.bind(this, i))
   const r = (await limit(tasks, 10)).filter((r) => r)
 
   if (argv.exec) {
