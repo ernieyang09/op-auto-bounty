@@ -119,11 +119,11 @@ const main = async () => {
 
     console.log(`${i} bounty: ${bountyUsd}, cost: ${totalCost}`)
 
-    if (totalCost > 0.15) {
+    if (totalCost > 0.25) {
       return
     }
 
-    if (totalCost > 0.095 && bountyUsd - totalCost < expectedReward * 1.2) {
+    if (totalCost > 0.2 && bountyUsd - totalCost < expectedReward * 1.2) {
       return
     }
 
