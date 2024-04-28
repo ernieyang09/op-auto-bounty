@@ -93,13 +93,12 @@ const main = async () => {
     const { gauge, rewardToken } = res1
 
     const gaugeContract = createContract(wallet, 'gauge', { addr: gauge })
-    const rewardTokenAmount = ethers.utils.formatEther(
-      await gaugeContract.earned(VAULT_CONTRACT_ADDR),
-    )
+    const rewardTokenAmount =
+      ethers.utils.formatEther(await gaugeContract.earned(VAULT_CONTRACT_ADDR)) / 100
 
     const rewardTokenPrice = await fetchPrice(rewardToken)
 
-    const bountyUsd = 0.01 * rewardTokenPrice * rewardTokenAmount
+    const bountyUsd = rewardTokenPrice * rewardTokenAmount
 
     if (bountyUsd < 0.11) {
       return

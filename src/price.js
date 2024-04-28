@@ -45,10 +45,18 @@ const fetchPrice = async (token) => {
     return priceCache[token]
   }
 
+  let query
+  if (token === '0x4200000000000000000000000000000000000006') {
+    query = 'ETHUSDT'
+  } else {
+    query = 'VELOUSDT'
+  }
+
   try {
     let ret = 0
     const r = await fetch(
-      `https://api.portals.fi/v2/tokens?networks=optimism&ids=optimism:${token}`,
+      // `https://api.portals.fi/v2/tokens?networks=optimism&ids=optimism:${token}`,
+      `https://api.bitget.com/api/v2/spot/market/tickers?symbol=${query}`,
       {
         method: 'GET',
         redirect: 'follow',
@@ -58,7 +66,7 @@ const fetchPrice = async (token) => {
       },
     )
     const res = await r.json()
-    ret = res.tokens[0].price
+    ret = res.data[0].lastPr
     logger.debug(`fetch token ${token}: ${ret}`)
     priceCache[token] = ret
   } catch (e) {
