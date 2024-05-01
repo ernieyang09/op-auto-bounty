@@ -60,7 +60,7 @@ const calculateGasFeeUsd = async (wallet, tx) => {
 
     console.log('l2gas gwei', ethers.utils.formatUnits(gasPrice, 'gwei'))
 
-    return [pWeiValue, ethers.BigNumber.from(14).mul(l2gas).mul(gasPrice).div(10)]
+    return [pWeiValue, ethers.BigNumber.from(1).mul(l2gas).mul(gasPrice)]
   }
 
   const calL1GasCost = async () =>
