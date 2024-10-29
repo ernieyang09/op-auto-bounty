@@ -100,7 +100,8 @@ const main = async () => {
 
     const bountyUsd = rewardTokenPrice * rewardTokenAmount
 
-    if (bountyUsd < 0.11) {
+    let expectedReward = minReward
+    if (bountyUsd < expectedReward) {
       return
     }
 
@@ -108,13 +109,11 @@ const main = async () => {
     const tx = await wallet.populateTransaction(txReq)
     const [pWeiValue, totalCost] = await calculateGasFeeUsd(wallet, tx)
 
-    let expectedReward = minReward
-
-    if (argv.random) {
-      // -0.02 to 0.07
-      const randomValue = Math.random() * 0.09 - 0.02
-      expectedReward += randomValue
-    }
+    // if (argv.random) {
+    //   // -0.02 to 0.07
+    //   const randomValue = Math.random() * 0.09 - 0.02
+    //   expectedReward += randomValue
+    // }
 
     console.log(`${i} bounty: ${bountyUsd}, cost: ${totalCost}`)
 
@@ -138,7 +137,7 @@ const main = async () => {
   }
 
   const tasks = [...Array(72)].map((_, i) => taskRunner.bind(this, i))
-  const r = (await limit(tasks, 10)).filter((r) => r)
+  const r = (await limit(tasks, 5)).filter((r) => r)
 
   if (argv.exec) {
     let nonce = await wallet.getTransactionCount()
